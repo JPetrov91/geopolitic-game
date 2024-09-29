@@ -5,27 +5,13 @@ import styled from 'styled-components';
 import PropTypes from 'prop-types';
 import { toast } from 'react-toastify';
 import MarketHeader from './MarketHeader';
-import MarketItemRow from './MarketItemRow';
+import MarketFilters from './MarketFilters';
+import MarketTable from './MarketTable';
 import AddItemModal from './AddItemModal';
 import useFetchMarketItems from '../../hooks/market/useFetchMarketItems';
 import useHandleBuy from '../../hooks/market/useHandleBuy';
-import marketApi from "../marketApi"; // Импортируйте marketApi
-
-// Стилизация контейнера для таблицы
-const Table = styled.table`
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
-`;
-
-const TableHeader = styled.th`
-    padding: 12px;
-    background-color: #34495e;
-    color: #ecf0f1;
-    text-align: center;
-    border-bottom: 2px solid #2c3e50;
-    font-weight: bold;
-`;
+import useMarketFilters from '../../hooks/market/useMarketFilters';
+import marketApi from "../../marketApi"; // Импортируйте marketApi
 
 const LoadingMessage = styled.p`
     color: #3498db;
@@ -51,21 +37,25 @@ const MarketContainer = styled.div`
     margin: 20px auto;
 `;
 
-const TableContainer = styled.div`
-    overflow-x: auto;
-
-    @media (max-width: 768px) {
-        font-size: 0.9em;
-    }
-
-    @media (max-width: 480px) {
-        font-size: 0.8em;
-    }
-`;
-
 const Market = ({ characterId }) => {
     const { marketItems, loading, error, setMarketItems } = useFetchMarketItems();
     const { handleBuy, buyingItemId } = useHandleBuy(setMarketItems, characterId);
+    const {
+        searchName,
+        setSearchName,
+        filterSeller,
+        setFilterSeller,
+        priceMin,
+        setPriceMin,
+        priceMax,
+        setPriceMax,
+        sortConfig,
+        requestSort,
+        getSortIndicator,
+        sortedAndFilteredItems,
+        clearFilters,
+    } = useMarketFilters(marketItems);
+
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [newItem, setNewItem] = useState({
         name: '',
@@ -103,7 +93,7 @@ const Market = ({ characterId }) => {
                 ...newItem,
                 sellerId: characterId,
             };
-            const response = await marketApi.post('/market/items', payload); // Путь к market-app через Nginx или прямой URL
+            const response = await marketApi.post('/market/items', payload);
             if (response.status === 201 || response.status === 200) {
                 setMarketItems(prevItems => [...prevItems, response.data]);
                 toast.success('Товар успешно выставлен на продажу!');
@@ -123,42 +113,32 @@ const Market = ({ characterId }) => {
         <MarketContainer>
             <MarketHeader onAddItem={openModal} />
 
+            {/* Фильтры */}
+            <MarketFilters
+                searchName={searchName}
+                setSearchName={setSearchName}
+                filterSeller={filterSeller}
+                setFilterSeller={setFilterSeller}
+                priceMin={priceMin}
+                setPriceMin={setPriceMin}
+                priceMax={priceMax}
+                setPriceMax={setPriceMax}
+                clearFilters={clearFilters}
+            />
+
+            {/* Таблица товаров */}
             {loading ? (
                 <LoadingMessage>Загрузка товаров рынка...</LoadingMessage>
             ) : error ? (
                 <ErrorMessage>{error}</ErrorMessage>
             ) : (
-                <TableContainer>
-                <Table>
-                    <thead>
-                    <tr>
-                        <TableHeader>Название</TableHeader>
-                        <TableHeader>Количество</TableHeader>
-                        <TableHeader>Цена (₽)</TableHeader>
-                        <TableHeader>Продавец</TableHeader>
-                        <TableHeader>Действие</TableHeader>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {marketItems.length > 0 ? (
-                        marketItems.map(item => (
-                            <MarketItemRow
-                                key={item.id}
-                                item={item}
-                                onBuy={handleBuy}
-                                isBuying={buyingItemId === item.id}
-                            />
-                        ))
-                    ) : (
-                        <tr>
-                            <td colSpan="5">
-                                <ErrorMessage>Нет доступных товаров на рынке.</ErrorMessage>
-                            </td>
-                        </tr>
-                    )}
-                    </tbody>
-                </Table>
-                </TableContainer>
+                <MarketTable
+                    items={sortedAndFilteredItems}
+                    handleBuy={handleBuy}
+                    buyingItemId={buyingItemId}
+                    requestSort={requestSort}
+                    getSortIndicator={getSortIndicator}
+                />
             )}
 
             <AddItemModal

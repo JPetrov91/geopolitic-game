@@ -14,7 +14,7 @@ const useFetchMarketItems = () => {
             setLoading(true);
             setError('');
             try {
-                const response = await marketApi.get('/market/active'); // Убедитесь, что путь правильный
+                const response = await marketApi.get('/market/active');
                 if (Array.isArray(response.data)) {
                     setMarketItems(response.data);
                 } else {

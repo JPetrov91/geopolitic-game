@@ -71,3 +71,24 @@ export const Input = styled.input`
         border-color: #e74c3c;
     }
 `;
+
+// Общие стили для кнопки сброса фильтров
+export const ClearFiltersButton = styled.button`
+    padding: 10px 20px;
+    background-color: #c0392b; /* Красная кнопка */
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+
+    &:hover {
+        background-color: #96281b;
+        transform: scale(1.05);
+    }
+
+    &:active {
+        transform: scale(0.95);
+    }
+`;
