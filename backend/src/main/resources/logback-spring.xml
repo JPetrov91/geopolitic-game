@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <springProfile name="prod">
+
+        <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+            <encoder>
+                <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</pattern>
+            </encoder>
+        </appender>
+
+
+        <!-- Appender для отправки логов в Logstash -->
+        <appender name="LOGSTASH" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
+            <destination>logstash:5044</destination>
+            <encoder class="net.logstash.logback.encoder.LogstashEncoder" />
+        </appender>
+
+        <!-- Файловый аппендер для локального хранения логов (опционально) -->
+        <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+            <file>/var/log/backend.log</file>
+            <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+                <fileNamePattern>/var/log/backend.%d{yyyy-MM-dd}.log</fileNamePattern>
+                <maxHistory>30</maxHistory>
+            </rollingPolicy>
+            <encoder>
+                <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</pattern>
+            </encoder>
+        </appender>
+
+        <logger name="org.springframework" level="INFO"/>
+
+        <logger name="org.springframework.security" level="DEBUG"/>
+
+        <!-- Дополнительные логгеры (опционально) -->
+        <logger name="org.springframework.web" level="DEBUG"/>
+        <logger name="com.example.backend" level="DEBUG"/>
+
+        <!-- Корневой логгер -->
+        <root level="DEBUG">
+            <appender-ref ref="CONSOLE"/>
+            <!-- <appender-ref ref="FILE"/> -->
+        </root>
+    </springProfile>
+
+    <springProfile name="dev">
+        <!-- Консольный аппендер для разработки -->
+        <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+            <encoder>
+                <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</pattern>
+            </encoder>
+        </appender>
+
+        <logger name="org.springframework" level="DEBUG"/>
+
+        <logger name="com.example.backend" level="DEBUG"/>
+
+        <root level="DEBUG">
+            <appender-ref ref="CONSOLE"/>
+        </root>
+    </springProfile>
+
+</configuration>

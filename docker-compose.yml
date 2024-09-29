@@ -1,0 +1,157 @@
+version: '3.8'
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: geopolitic-backend
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/geopolitic
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=admin12345
+      - SPRING_REDIS_HOST=redis
+      - SPRING_REDIS_PORT=6379
+      - SPRING_PROFILES_ACTIVE=prod
+      - AXON_SERVER_URL=axonserver:8124
+    ports:
+      - "8080:8080"  # Добавлен маппинг порта
+    depends_on:
+      - db
+      - redis
+      - elasticsearch
+      - logstash
+      - axonserver
+    networks:
+      - geopolitic-network
+
+  market-app:
+    build:
+      context: ./market-app
+      dockerfile: Dockerfile
+    container_name: geopolitic-market-app
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/geopolitic
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=admin12345
+      - SPRING_REDIS_HOST=redis
+      - SPRING_REDIS_PORT=6379
+      - SPRING_PROFILES_ACTIVE=prod
+      - AXON_SERVER_URL=axonserver:8124
+    ports:
+      - "8081:8081"  # Добавлен маппинг порта, если market-app слушает на 8081
+    depends_on:
+      - db
+      - redis
+      - elasticsearch
+      - logstash
+      - axonserver
+      - backend
+    networks:
+      - geopolitic-network
+
+  axonserver:
+    image: axoniq/axonserver:4.5.7
+    container_name: axonserver
+    ports:
+      - "8124:8124"
+      - "8123:8123"
+    environment:
+      - AXONIQ_AXONSERVER_LOG_DIR=/var/log/axonserver
+      - AXONIQ_AXONSERVER_DATA_DIR=/var/lib/axonserver/data
+      - AXONIQ_AXONSERVER_SUPERVISOR_ENABLED=true
+    volumes:
+      - axonserver-data:/var/lib/axonserver/data
+      - axonserver-logs:/var/log/axonserver
+    networks:
+      - geopolitic-network
+
+  db:
+    image: postgres:13
+    container_name: geopolitic-db
+    environment:
+      - POSTGRES_DB=geopolitic
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=admin12345
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./backend/src/main/resources/db-init:/docker-entrypoint-initdb.d
+    networks:
+      - geopolitic-network
+
+  redis:
+    image: redis:6
+    container_name: geopolitic-redis
+    ports:
+      - "6379:6379"
+    networks:
+      - geopolitic-network
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.15.1
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node
+      - ES_JAVA_OPTS=-Xms1g -Xmx1g
+      - ELASTIC_PASSWORD=StrongPassword123!
+      - xpack.security.enabled=true
+      - network.host=0.0.0.0
+    ports:
+      - "9200:9200"
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
+    networks:
+      - geopolitic-network
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.15.1
+    container_name: kibana
+    ports:
+      - "5601:5601"
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+      - ELASTICSEARCH_USERNAME=kibana_system
+      - ELASTICSEARCH_PASSWORD=StrongPassword123!
+    depends_on:
+      - elasticsearch
+    networks:
+      - geopolitic-network
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash:8.15.1
+    container_name: logstash
+    volumes:
+      - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml
+      - ./logstash/pipeline:/usr/share/logstash/pipeline
+    ports:
+      - "5044:5044"
+    depends_on:
+      - elasticsearch
+    networks:
+      - geopolitic-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: geopolitic-frontend
+    ports:
+      - "3000:80"
+    environment:
+      - REACT_APP_API_BASE_URL=http://localhost:8080/api  # Обновлено на прямой URL backend
+    depends_on:
+      - backend
+      - market-app
+    networks:
+      - geopolitic-network
+
+networks:
+  geopolitic-network:
+    driver: bridge
+
+volumes:
+  postgres-data:
+  esdata:
+  axonserver-data:
+  axonserver-logs:
