@@ -53,5 +53,11 @@ public class MarketController {
         return ResponseEntity.ok(logs);
     }
 
+    @GetMapping("/types")
+    public ResponseEntity<List<String>> getMarketTypes() {
+        List<String> marketTypesList =  List.of("Resource", "Weapon", "Others");
+        return ResponseEntity.ok(marketTypesList);
+    }
+
     // Дополнительные эндпоинты для истории и других операций
 }
