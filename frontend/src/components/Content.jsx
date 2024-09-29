@@ -7,7 +7,7 @@ import styled from 'styled-components';
 const Map = lazy(() => import('./Map'));
 const Factions = lazy(() => import('./Factions'));
 const Inventory = lazy(() => import('./Inventory'));
-const Market = lazy(() => import('./Market'));
+const Market = lazy(() => import('./market/Market'));
 // Импортируйте другие компоненты по необходимости
 
 // Стилизация контейнера содержимого
