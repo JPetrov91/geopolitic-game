@@ -1,20 +1,10 @@
 // src/components/StyledComponents.jsx
 
-import styled, { keyframes } from 'styled-components';
+import styled from 'styled-components';
 
-// Анимация для кнопок
-const bounce = keyframes`
-    0%, 100% {
-        transform: translateY(0);
-    }
-    50% {
-        transform: translateY(-5px);
-    }
-`;
-
-// Общие стили для кнопок
+// Общие стили для кнопок покупки
 export const BuyButton = styled.button`
-    padding: 10px;
+    padding: 10px 20px;
     background-color: #e67e22; /* Оранжевая кнопка */
     color: #fff;
     border: none;
@@ -38,6 +28,7 @@ export const BuyButton = styled.button`
     }
 `;
 
+// Общие стили для кнопок отправки форм
 export const SubmitButton = styled.button`
     width: 100%;
     padding: 12px;
@@ -64,6 +55,7 @@ export const SubmitButton = styled.button`
     }
 `;
 
+// Общие стили для инпутов
 export const Input = styled.input`
     width: 100%;
     padding: 12px;

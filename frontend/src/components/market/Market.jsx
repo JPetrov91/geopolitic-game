@@ -5,28 +5,26 @@ import styled from 'styled-components';
 import PropTypes from 'prop-types';
 import { toast } from 'react-toastify';
 import MarketHeader from './MarketHeader';
-import MarketItemCard from './MarketItemCard';
+import MarketItemRow from './MarketItemRow';
 import AddItemModal from './AddItemModal';
 import useFetchMarketItems from '../../hooks/market/useFetchMarketItems';
 import useHandleBuy from '../../hooks/market/useHandleBuy';
-import marketApi from "../../marketApi";
+import marketApi from "../marketApi"; // Импортируйте marketApi
 
-// Стилизация контейнера для карточек товаров
-const ItemsGrid = styled.div`
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 20px;
+// Стилизация контейнера для таблицы
+const Table = styled.table`
+    width: 100%;
+    border-collapse: collapse;
     margin-top: 20px;
 `;
 
-const MarketContainer = styled.div`
-    padding: 20px;
-    background: rgba(44, 62, 80, 0.95); /* Полупрозрачный тёмно-синий фон */
-    border-radius: 10px;
-    box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+const TableHeader = styled.th`
+    padding: 12px;
+    background-color: #34495e;
     color: #ecf0f1;
-    max-width: 1200px;
-    margin: 20px auto;
+    text-align: center;
+    border-bottom: 2px solid #2c3e50;
+    font-weight: bold;
 `;
 
 const LoadingMessage = styled.p`
@@ -41,6 +39,28 @@ const ErrorMessage = styled.p`
     text-align: center;
     margin-top: 15px;
     font-size: 1.1em;
+`;
+
+const MarketContainer = styled.div`
+    padding: 20px;
+    background: rgba(44, 62, 80, 0.95); /* Полупрозрачный тёмно-синий фон */
+    border-radius: 10px;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+    color: #ecf0f1;
+    max-width: 1200px;
+    margin: 20px auto;
+`;
+
+const TableContainer = styled.div`
+    overflow-x: auto;
+
+    @media (max-width: 768px) {
+        font-size: 0.9em;
+    }
+
+    @media (max-width: 480px) {
+        font-size: 0.8em;
+    }
 `;
 
 const Market = ({ characterId }) => {
@@ -83,7 +103,7 @@ const Market = ({ characterId }) => {
                 ...newItem,
                 sellerId: characterId,
             };
-            const response = await marketApi.post('/market/list', payload); // Убедитесь, что путь правильный
+            const response = await marketApi.post('/market/items', payload); // Путь к market-app через Nginx или прямой URL
             if (response.status === 201 || response.status === 200) {
                 setMarketItems(prevItems => [...prevItems, response.data]);
                 toast.success('Товар успешно выставлен на продажу!');
@@ -108,10 +128,21 @@ const Market = ({ characterId }) => {
             ) : error ? (
                 <ErrorMessage>{error}</ErrorMessage>
             ) : (
-                <ItemsGrid>
+                <TableContainer>
+                <Table>
+                    <thead>
+                    <tr>
+                        <TableHeader>Название</TableHeader>
+                        <TableHeader>Количество</TableHeader>
+                        <TableHeader>Цена (₽)</TableHeader>
+                        <TableHeader>Продавец</TableHeader>
+                        <TableHeader>Действие</TableHeader>
+                    </tr>
+                    </thead>
+                    <tbody>
                     {marketItems.length > 0 ? (
                         marketItems.map(item => (
-                            <MarketItemCard
+                            <MarketItemRow
                                 key={item.id}
                                 item={item}
                                 onBuy={handleBuy}
@@ -119,9 +150,15 @@ const Market = ({ characterId }) => {
                             />
                         ))
                     ) : (
-                        <ErrorMessage>Нет доступных товаров на рынке.</ErrorMessage>
+                        <tr>
+                            <td colSpan="5">
+                                <ErrorMessage>Нет доступных товаров на рынке.</ErrorMessage>
+                            </td>
+                        </tr>
                     )}
-                </ItemsGrid>
+                    </tbody>
+                </Table>
+                </TableContainer>
             )}
 
             <AddItemModal
