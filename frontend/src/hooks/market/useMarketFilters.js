@@ -8,6 +8,7 @@ const useMarketFilters = (items) => {
     const [filterSeller, setFilterSeller] = useState('');
     const [priceMin, setPriceMin] = useState('');
     const [priceMax, setPriceMax] = useState('');
+    const [filterType, setFilterType] = useState('Все'); // Добавлено состояние для типа товара
 
     // Состояния для сортировки
     const [sortConfig, setSortConfig] = useState({
@@ -55,6 +56,11 @@ const useMarketFilters = (items) => {
             filteredItems = filteredItems.filter(item => item.price <= parseFloat(priceMax));
         }
 
+        // Фильтрация по типу товара
+        if (filterType && filterType !== 'Все') {
+            filteredItems = filteredItems.filter(item => item.type === filterType);
+        }
+
         // Сортировка
         if (sortConfig.key !== null) {
             filteredItems.sort((a, b) => {
@@ -69,13 +75,14 @@ const useMarketFilters = (items) => {
         }
 
         return filteredItems;
-    }, [items, searchName, filterSeller, priceMin, priceMax, sortConfig]);
+    }, [items, searchName, filterSeller, priceMin, priceMax, filterType, sortConfig]);
 
     const clearFilters = () => {
         setSearchName('');
         setFilterSeller('');
         setPriceMin('');
         setPriceMax('');
+        setFilterType('Все'); // Сбросить тип товара
     };
 
     return {
@@ -87,6 +94,8 @@ const useMarketFilters = (items) => {
         setPriceMin,
         priceMax,
         setPriceMax,
+        filterType,
+        setFilterType,
         sortConfig,
         requestSort,
         getSortIndicator,

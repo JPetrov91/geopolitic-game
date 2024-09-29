@@ -55,6 +55,21 @@ const CloseButton = styled.button`
     }
 `;
 
+const SelectField = styled.select`
+    padding: 8px;
+    border: 1px solid #34495e;
+    border-radius: 5px;
+    background-color: rgba(236, 240, 241, 0.2);
+    color: #ecf0f1;
+    font-size: 1em;
+    margin-bottom: 20px;
+
+    &:focus {
+        outline: none;
+        border-color: #e74c3c;
+    }
+`;
+
 const AddItemModal = ({ isOpen, onClose, onSubmit, newItem, onChange, isSubmitting }) => {
     if (!isOpen) return null;
 
@@ -96,6 +111,24 @@ const AddItemModal = ({ isOpen, onClose, onSubmit, newItem, onChange, isSubmitti
                         required
                         aria-label="Цена за единицу"
                     />
+                    {/* Добавлено поле выбора типа товара */}
+                    <div style={{ marginBottom: '20px' }}>
+                        <label htmlFor="type" style={{ display: 'block', marginBottom: '5px', color: '#ecf0f1', fontWeight: 'bold' }}>
+                            Тип товара:
+                        </label>
+                        <SelectField
+                            id="type"
+                            name="type"
+                            value={newItem.type}
+                            onChange={onChange}
+                            required
+                            aria-label="Тип товара"
+                        >
+                            <option value="">Выберите тип</option>
+                            <option value="Ресурсы">Ресурсы</option>
+                            <option value="Оружие">Оружие</option>
+                        </SelectField>
+                    </div>
                     <SubmitButton type="submit" disabled={isSubmitting}>
                         {isSubmitting ? 'Создание...' : 'Создать'}
                     </SubmitButton>
@@ -119,6 +152,7 @@ AddItemModal.propTypes = {
             PropTypes.string,
             PropTypes.number,
         ]),
+        type: PropTypes.string, // Добавлено поле type
     }).isRequired,
     onChange: PropTypes.func.isRequired,
     isSubmitting: PropTypes.bool,

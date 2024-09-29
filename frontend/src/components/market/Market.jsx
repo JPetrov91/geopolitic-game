@@ -49,6 +49,8 @@ const Market = ({ characterId }) => {
         setPriceMin,
         priceMax,
         setPriceMax,
+        filterType,
+        setFilterType,
         sortConfig,
         requestSort,
         getSortIndicator,
@@ -61,6 +63,7 @@ const Market = ({ characterId }) => {
         name: '',
         quantity: 1,
         price: 0,
+        type: '', // Добавлено поле type
     });
     const [submitting, setSubmitting] = useState(false);
 
@@ -74,6 +77,7 @@ const Market = ({ characterId }) => {
             name: '',
             quantity: 1,
             price: 0,
+            type: '', // Сбросить тип товара
         });
     };
 
@@ -123,6 +127,8 @@ const Market = ({ characterId }) => {
                 setPriceMin={setPriceMin}
                 priceMax={priceMax}
                 setPriceMax={setPriceMax}
+                filterType={filterType}
+                setFilterType={setFilterType}
                 clearFilters={clearFilters}
             />
 
