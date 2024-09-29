@@ -38,7 +38,7 @@ services:
       - SPRING_PROFILES_ACTIVE=prod
       - AXON_SERVER_URL=axonserver:8124
     ports:
-      - "8081:8081"  # Добавлен маппинг порта, если market-app слушает на 8081
+      - "8081:8080"  # Добавлен маппинг порта, если market-app слушает на 8081
     depends_on:
       - db
       - redis
