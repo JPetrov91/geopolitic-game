@@ -134,8 +134,7 @@ const Inventory = ({ storageId }) => {
             setLoading(true);
             setError('');
             try {
-                const response = api.get(`/storages/${storageId}`)
-                    .then(response => response.data)
+                const response = await api.get(`/storages/${storageId}`)
                 setStorageData(response.data);
                 toast.success('Инвентарь успешно загружен!');
             } catch (err) {
@@ -153,10 +152,10 @@ const Inventory = ({ storageId }) => {
     const handleCreate = async (resourceType) => {
         setCreating(true);
         try {
-            const response = api.post(`/api/storages/${storageId}/addResource`, {
+            const response = await api.post(`/api/storages/${storageId}/addResource`, {
                 resourceType: resourceType,
                 amount: 1
-            }).then(response => response.data)
+            })
             // Предполагается, что API возвращает обновлённые данные склада
             setStorageData(response.data);
             toast.success(`1 единица ${resourceType} успешно создана!`);
