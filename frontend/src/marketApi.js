@@ -3,7 +3,7 @@ import axios from 'axios';
 import { getAuthToken } from './utils/auth';
 
 const marketApi = axios.create({
-    baseURL: 'http://localhost:8081/api'
+    baseURL: 'http://localhost:8080/api'
 });
 
 marketApi.interceptors.request.use(
