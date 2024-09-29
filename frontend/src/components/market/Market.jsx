@@ -9,6 +9,7 @@ import MarketItemCard from './MarketItemCard';
 import AddItemModal from './AddItemModal';
 import useFetchMarketItems from '../../hooks/market/useFetchMarketItems';
 import useHandleBuy from '../../hooks/market/useHandleBuy';
+import marketApi from "../../marketApi";
 
 // Стилизация контейнера для карточек товаров
 const ItemsGrid = styled.div`
@@ -82,7 +83,7 @@ const Market = ({ characterId }) => {
                 ...newItem,
                 sellerId: characterId,
             };
-            const response = await marketApi.post('/market/items', payload); // Убедитесь, что путь правильный
+            const response = await marketApi.post('/market/list', payload); // Убедитесь, что путь правильный
             if (response.status === 201 || response.status === 200) {
                 setMarketItems(prevItems => [...prevItems, response.data]);
                 toast.success('Товар успешно выставлен на продажу!');
